@@ -1,11 +1,16 @@
-import { Welcome } from '../components/Welcome/Welcome';
-import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
+import { HeaderSimple } from '@/components/Header/HeaderSimple';
+import Hero from '@/components/Hero/Hero';
+import { FeaturesGrid } from '@/components/Features/FeaturesGrid';
+import { GetInTouchSimple } from '@/components/GetInTouch/GetInTouchSimple';
 
 export default function HomePage() {
   return (
     <>
-      <Welcome />
-      <ColorSchemeToggle />
+      <HeaderSimple />
+        <Hero />
+        <FeaturesGrid />
+        <GetInTouchSimple />
+
     </>
   );
 }
