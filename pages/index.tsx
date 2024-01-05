@@ -1,16 +1,20 @@
 import { HeaderSimple } from '@/components/Header/HeaderSimple';
-import Hero from '@/components/Hero/Hero';
+import { HeroTitle } from '@/components/Hero/Hero';
 import { FeaturesGrid } from '@/components/Features/FeaturesGrid';
-import { GetInTouchSimple } from '@/components/GetInTouch/GetInTouchSimple';
+import { EmailBanner } from '@/components/GetInTouch/GetInTouchSimple';
+import { FooterSimple } from '@/components/Footer/FooterSimple';
+import { ScrollProvider } from '@/components/Hero/ScrollContext';
 
 export default function HomePage() {
   return (
     <>
+      <ScrollProvider>
       <HeaderSimple />
-        <Hero />
+        <HeroTitle />
         <FeaturesGrid />
-        <GetInTouchSimple />
-
+        <EmailBanner />
+        <FooterSimple />
+      </ScrollProvider>
     </>
   );
 }

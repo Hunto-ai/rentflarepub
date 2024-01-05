@@ -1,75 +1,36 @@
-import { TextInput, Textarea, SimpleGrid, Group, Title, Button } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Text, Title, TextInput, Button, Image } from '@mantine/core';
+import { useContext } from 'react';
+import { ScrollContext } from '@/components/Hero/ScrollContext';
+import image from './image.svg';
+import classes from './EmailBanner.module.css';
 
-export function GetInTouchSimple() {
-    const form = useForm({
-        initialValues: {
-            name: '',
-            email: '',
-            subject: '',
-            message: '',
-        },
-        validate: {
-            name: (value) => value.trim().length < 2,
-            email: (value) => !/^\S+@\S+$/.test(value),
-            subject: (value) => value.trim().length === 0,
-        },
-    });
-
+export function EmailBanner() {
+    const { getInTouchRef } = useContext(ScrollContext);
     return (
-        <form onSubmit={form.onSubmit(() => {})}>
-            <Title
-              order={2}
-              size="h1"
-              style={{ fontFamily: 'Greycliff CF, var(--mantine-font-family)' }}
-              fw={900}
-              ta="center"
-            >
-                Ready to Rent?
-            </Title>
+        <div ref={getInTouchRef} className={classes.wrapper}>
+            <div className={classes.wrapper}>
+                <div className={classes.body}>
+                    <Title className={classes.title}>Ready to Rent?</Title>
+                    <Text fw={500} fz="lg" mb={5}>
+                        Lets get in touch.
+                    </Text>
+                    <Text fz="sm" c="dimmed">
+                        See if your company is the right fit for rentals. Find out what it means to own your
+                        own rental portfolio today.
+                    </Text>
 
-            <SimpleGrid cols={{ base: 1, sm: 2 }} mt="xl">
-                <TextInput
-                  label="Name"
-                  placeholder="Your name"
-                  name="name"
-                  variant="filled"
-                  {...form.getInputProps('name')}
-                />
-                <TextInput
-                  label="Email"
-                  placeholder="Your email"
-                  name="email"
-                  variant="filled"
-                  {...form.getInputProps('email')}
-                />
-            </SimpleGrid>
-
-            <TextInput
-              label="Subject"
-              placeholder="Subject"
-              mt="md"
-              name="subject"
-              variant="filled"
-              {...form.getInputProps('subject')}
-            />
-            <Textarea
-              mt="md"
-              label="Message"
-              placeholder="Your message"
-              maxRows={10}
-              minRows={5}
-              autosize
-              name="message"
-              variant="filled"
-              {...form.getInputProps('message')}
-            />
-
-            <Group justify="center" mt="xl">
-                <Button type="submit" size="md">
-                    Send message
-                </Button>
-            </Group>
-        </form>
+                    <div className={classes.controls}>
+                        <TextInput
+                          placeholder="Your email"
+                          classNames={{ input: classes.input, root: classes.inputWrapper }}
+                        />
+                        <a href="mailto:jeff@rentflare.ca" className={classes.control}>
+                            <Button className={classes.button}>Reach Out</Button>
+                        </a>
+                    </div>
+                </div>
+                <Image src={image.src} className={classes.image} />
+            </div>
+        </div>
     );
 }

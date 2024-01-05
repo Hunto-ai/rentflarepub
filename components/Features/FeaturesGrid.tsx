@@ -7,7 +7,7 @@ export const MOCKDATA = [
         icon: IconCalculator,
         title: 'Create Pricebooks',
         description:
-            'Rentflare handles what to set your monthly rates at and lets you know what you can expect as an ROI on your asset',
+            'Rentflare handles what to set your monthly prices at in order to maximize profitability.',
     },
     {
         icon: IconZoomCheck,

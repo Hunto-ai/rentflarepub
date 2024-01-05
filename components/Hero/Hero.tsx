@@ -1,42 +1,41 @@
-import { Container, Title, Text, Button } from '@mantine/core';
-import classes from './HeroImageRight.module.css';
+import { Container, Text, Button, Group } from '@mantine/core';
+import { useContext } from 'react';
+import { ScrollContext } from './ScrollContext';
+import classes from './HeroTitle.module.css';
 
-export default function HeroImageRight() {
+export function HeroTitle() {
+    const { getInTouchRef } = useContext(ScrollContext);
+    const scrollToGetInTouch = () => {
+        getInTouchRef.current.scrollIntoView({ behavior: 'smooth' });
+    };
     return (
-        <div className={classes.root}>
-            <Container size="lg">
-                <div className={classes.inner}>
-                    <div className={classes.content}>
-                        <Title className={classes.title}>
-                            Start{' '}
-                            <Text
-                              component="span"
-                              inherit
-                              variant="gradient"
-                              gradient={{ from: 'pink', to: 'yellow' }}
-                            >
-                                renting equipment
-                            </Text>{' '}
-                            like an enterprise company
-                        </Title>
+        <div className={classes.wrapper}>
+            <Container size={700} className={classes.inner}>
+                <h1 className={classes.title}>
+                    Start {' '}
+                    <Text component="span" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }} inherit>
+                        renting
+                    </Text>{' '}
+                    equipment in a flash.
+                </h1>
 
-                        <Text className={classes.description} mt={30}>
-                            {/* eslint-disable-next-line max-len */}
-                            Rentflare Software allows Plumbing & Heating companies to begin renting Water Heaters,
-                            Furnaces, Air Conditioners, and just about anything else.
-                        </Text>
+                <Text className={classes.description} color="dimmed">
+                    We level the playing field and help small and medium sized Plumbing & HVAC Service
+                    providers build their own rental portfolios for long term sustainable growth.
+                </Text>
 
+                <Group className={classes.controls}>
                         <Button
-                          variant="gradient"
-                          gradient={{ from: 'pink', to: 'yellow' }}
                           size="xl"
                           className={classes.control}
-                          mt={40}
+                          variant="gradient"
+                          gradient={{ from: 'blue', to: 'cyan' }}
+                          onClick={scrollToGetInTouch}
                         >
                             Get started
                         </Button>
-                    </div>
-                </div>
+
+                </Group>
             </Container>
         </div>
     );

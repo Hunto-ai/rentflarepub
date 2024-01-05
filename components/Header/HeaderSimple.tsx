@@ -3,13 +3,11 @@ import { Container, Group, Burger } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Image from 'next/image';
 import classes from './HeaderSimple.module.css';
-import logoImage from './RentFlareWebLogo150.png'; // Import your logo image
+import logoImage from './RentFlareWebLogo150wide.png'; // Import your logo image
 
 const links = [
     { link: '/about', label: 'Features' },
-    { link: '/pricing', label: 'Pricing' },
-    { link: '/learn', label: 'Learn' },
-    { link: '/community', label: 'Community' },
+    { link: '/learn', label: 'Contact' },
 ];
 
 export function HeaderSimple() {
@@ -34,7 +32,7 @@ export function HeaderSimple() {
     return (
         <header className={classes.header}>
             <Container size="md" className={classes.inner}>
-                <Image src={logoImage} alt="Rent Flare Logo" /> {/* Replace MantineLogo with your image */}
+                <Image src={logoImage} alt="Rent Flare Logo" className={classes.logo} />
                 <Group gap={5} visibleFrom="xs">
                     {items}
                 </Group>
