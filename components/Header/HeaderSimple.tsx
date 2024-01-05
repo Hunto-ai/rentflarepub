@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Container, Group, Burger } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import Image from 'next/image';
 import classes from './HeaderSimple.module.css';
 import logoImage from './RentFlareWebLogo150.png'; // Import your logo image
 
@@ -33,7 +34,7 @@ export function HeaderSimple() {
     return (
         <header className={classes.header}>
             <Container size="md" className={classes.inner}>
-                <img src={logoImage} alt="Rent Flare Logo" /> {/* Replace MantineLogo with your image */}
+                <Image src={logoImage} alt="Rent Flare Logo" /> {/* Replace MantineLogo with your image */}
                 <Group gap={5} visibleFrom="xs">
                     {items}
                 </Group>
