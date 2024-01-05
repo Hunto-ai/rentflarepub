@@ -1,12 +1,15 @@
+// ScrollContext.tsx
 import React, { createContext, useRef, ReactNode } from 'react';
 
-// Define the type for your context
+// Define the context type
 type ScrollContextType = {
-    getInTouchRef: React.MutableRefObject<null>;
+    getInTouchRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-// Create a context with a default value
-export const ScrollContext = createContext<ScrollContextType>({ getInTouchRef: { current: null } });
+// Provide a default value with the correct type
+export const ScrollContext = createContext<ScrollContextType>({
+    getInTouchRef: { current: null }
+});
 
 // Define the props for ScrollProvider
 type ScrollProviderProps = {
@@ -14,7 +17,8 @@ type ScrollProviderProps = {
 };
 
 export const ScrollProvider = ({ children }: ScrollProviderProps) => {
-    const getInTouchRef = useRef(null);
+    // Specify the type for useRef
+    const getInTouchRef = useRef<HTMLDivElement>(null);
 
     return (
         <ScrollContext.Provider value={{ getInTouchRef }}>

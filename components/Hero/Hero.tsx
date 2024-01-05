@@ -6,8 +6,11 @@ import classes from './HeroTitle.module.css';
 export function HeroTitle() {
     const { getInTouchRef } = useContext(ScrollContext);
     const scrollToGetInTouch = () => {
-        getInTouchRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (getInTouchRef.current) {
+            getInTouchRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
     };
+
     return (
         <div className={classes.wrapper}>
             <Container size={700} className={classes.inner}>
