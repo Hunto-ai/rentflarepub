@@ -1,6 +1,9 @@
 .wrapper {
     display: flex;
+    justify-content: center; /* Add this for horizontal centering */
     align-items: center;
+    max-width: 960px; /* Adjust as per design requirement */
+    margin: 0 auto; /* This centers the wrapper */
     padding: calc(var(--mantine-spacing-xl) * 2);
     border-radius: var(--mantine-radius-md);
     background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8));
