@@ -7,7 +7,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider defaultColorScheme="dark">
       <Head>
-        <title>Rentflare</title>
+        <title>Rentflare - Software for Plumbing & HVAC Companies to Rent Equipment</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"

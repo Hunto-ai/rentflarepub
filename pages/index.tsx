@@ -1,5 +1,5 @@
 import { HeaderSimple } from '@/components/Header/HeaderSimple';
-import { HeroTitle } from '@/components/Hero/Hero';
+import { HeroContentLeft } from '@/components/Hero/Hero';
 import { FeaturesGrid } from '@/components/Features/FeaturesGrid';
 import { EmailBanner } from '@/components/GetInTouch/GetInTouchSimple';
 import { FooterSimple } from '@/components/Footer/FooterSimple';
@@ -10,7 +10,7 @@ export default function HomePage() {
     <>
       <ScrollProvider>
       <HeaderSimple />
-        <HeroTitle />
+        <HeroContentLeft />
         <FeaturesGrid />
         <EmailBanner />
         <FooterSimple />
