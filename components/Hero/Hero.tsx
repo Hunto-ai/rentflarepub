@@ -25,13 +25,12 @@ export function HeroContentLeft() {
           variant="gradient"
           gradient={{ from: 'pink', to: 'yellow' }}
         >
-                Fully featured
+                Unlock
         </Text>{' '}
-         Equipment Rental Software
+        Long-Term, Stable Revenue for Your Plumbing & Heating Business
         </Title>
         <Text className={classes.description} size="xl" mt="xl">
-          Enhace your HVAC and Plumbing business with Rentflare.
-           Manage your equipment, contracts, and customers all in one place.
+        Rentals provide a predictable income stream, helping you weather market fluctuations and grow sustainably.
         </Text>
 
         <Group className={classes.controls}>
