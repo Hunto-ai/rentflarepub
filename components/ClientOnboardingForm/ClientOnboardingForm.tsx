@@ -117,7 +117,6 @@ export const TenantOnboarding = () => {
       },
     };
 
-    console.log('Submitting:', modifiedValues);
     setErrorMessage('');
     toggle(); // Start the loading state
 
@@ -146,12 +145,10 @@ export const TenantOnboarding = () => {
       const response = await api.post('/api/tenants/register', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('Tenant created:', response.data);
       const { tenant } = response.data;
       const { stripeAccountLink } = tenant;
       window.location.href = stripeAccountLink;
     } catch (error) {
-      console.error('Error creating tenant:', error);
       setErrorMessage('Failed to create tenant. Please try again.');
     } finally {
       toggle(); // Stop the loading state
