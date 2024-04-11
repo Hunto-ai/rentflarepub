@@ -35,7 +35,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ clientSecret }) => {
       const { error } = await stripe.confirmSetup({
         elements,
         confirmParams: {
-          return_url: 'https://example.com/success',
+          return_url: 'https://www.rentflare.ca/final',
         },
       });
 
