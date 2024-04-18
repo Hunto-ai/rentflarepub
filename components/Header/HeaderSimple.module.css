@@ -38,3 +38,14 @@
         color: var(--mantine-color-white);
     }
 }
+
+.proudlyCanadian {
+    font-size: var(--mantine-font-size-xs);
+    color: var(--mantine-color-gray-6);
+    margin-right: rem(10px);
+  }
+  
+  .mapleLeaf {
+    font-size: var(--mantine-font-size-lg);
+    color: var(--mantine-color-red);
+  }

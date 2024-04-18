@@ -32,10 +32,14 @@ export function HeaderSimple() {
     return (
         <header className={classes.header}>
             <Container size="md" className={classes.inner}>
-                <Image src={logoImage} alt="Rent Flare Logo" className={classes.logo} />
-                <Group gap={5} visibleFrom="xs">
-                    {items}
-                </Group>
+    <Image src={logoImage} alt="Rent Flare Logo" className={classes.logo} />
+    <Group gap={5} visibleFrom="xs">
+      <span className={classes.proudlyCanadian}>
+        Proudly Canadian
+        <span className={classes.mapleLeaf}>🍁</span>
+      </span>
+      {items}
+    </Group>
 
                 <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
             </Container>

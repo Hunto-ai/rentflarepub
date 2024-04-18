@@ -3,14 +3,14 @@ import classes from './StatsGroup.module.css';
 
 const data = [
   {
-    title: 'in Annual Recurring Revenue',
-    stats: '$1,000,000+',
-    description: 'We have experience generating over $1,000,000 in annual recurring revenue for our Canadian clients.',
+    title: 'Portoflio Wealth Generated',
+    stats: '$10,000,000+',
+    description: 'We have experience generating millions of portfolio wealth for our clients, providing successful exits or continued stable long term revenue.',
   },
   {
     title: 'Contracts Executed',
-    stats: '2,175+',
-    description: 'We have a proven system for deploying rentals into any sized Plumbing & Heating Business.',
+    stats: '2,500+',
+    description: 'We have a proven system for deploying rentals into any sized Plumbing & HVAC Business.',
   },
   {
     title: 'Monthly Service Fee',

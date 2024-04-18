@@ -27,10 +27,11 @@ export function HeroContentLeft() {
         >
                 Unlock
         </Text>{' '}
-        Long-Term, Stable Revenue for Your Plumbing & Heating Business
+        Long-Term, Stable Revenue for Your Plumbing & HVAC Business
         </Title>
         <Text className={classes.description} size="xl" mt="xl">
-        Rentals provide a predictable income stream, helping you weather market fluctuations and grow sustainably.
+        Rentals provide a predictable income stream,
+        helping you weather market fluctuations and grow sustainably.
         </Text>
 
         <Group className={classes.controls}>
