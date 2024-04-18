@@ -100,6 +100,9 @@ export const TenantOnboarding = () => {
     }
   }, [router.query]);
 
+  // Handle non digits in the phone number
+  const removeNonDigits = (value: string) => value.replace(/\D/g, '');
+
   const onSubmit = async (values = form.values) => {
     if (!values.agreementAccepted) {
       setShowAgreementModal(true);
@@ -111,9 +114,18 @@ export const TenantOnboarding = () => {
       ...values,
       owner: {
         ...values.owner,
+        phone: removeNonDigits(values.owner.phone),
         website: values.owner.website.startsWith('http://') || values.owner.website.startsWith('https://')
           ? values.owner.website
           : `http://${values.owner.website}`,
+      },
+      accountant: {
+        ...values.accountant,
+        phone: removeNonDigits(values.accountant.phone),
+      },
+      technicalAdmin: {
+        ...values.technicalAdmin,
+        phone: removeNonDigits(values.technicalAdmin.phone),
       },
     };
 
