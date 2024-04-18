@@ -5,7 +5,12 @@ import { Button, LoadingOverlay, Text, Box, Paper, Space, Modal } from '@mantine
 import { useRouter } from 'next/router';
 import api from '@/axios/api';
 
-const stripePromise = loadStripe('pk_live_51O33WmCt2DYb83ehgTxdrQqoGDehpp7iSFWTG55yaoTZcbnLhJFnX9KoIHDLsrmZI0fWDcFMVW9LYGGxRYlk28es005nPEynly');
+// Set the appropriate stripe key for the vercel environment
+// This is the test key
+const stripeTestPromise = loadStripe('pk_test_51O33WmCt2DYb83ehfQ2Oj0ThR2NB67LRNmblvEeUAvmFzBIImSl8U4tUzDv8CMnnsT52uxthD3qQ4YUt0gOwpyCi00xCR13Qyo');
+const stripeLivePromise = loadStripe('pk_live_51O33WmCt2DYb83ehgTxdrQqoGDehpp7iSFWTG55yaoTZcbnLhJFnX9KoIHDLsrmZI0fWDcFMVW9LYGGxRYlk28es005nPEynly');
+
+const stripePromise = process.env.NODE_ENV === 'production' ? stripeLivePromise : stripeTestPromise;
 
 interface CheckoutFormProps {
   clientSecret: string;
