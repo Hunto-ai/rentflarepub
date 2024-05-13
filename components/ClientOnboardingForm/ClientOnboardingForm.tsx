@@ -226,29 +226,29 @@ export const TenantOnboarding = () => {
             required
             mb="sm"
           />
-          <Select
-            searchable
-            label="Province"
-            placeholder="Select province"
-            data={[
-              'AB',
-              'BC',
-              'MB',
-              'NB',
-              'NL',
-              'NS',
-              'NT',
-              'NU',
-              'ON',
-              'PE',
-              'QC',
-              'SK',
-              'YT',
-            ]}
-            {...form.getInputProps('businessAddress.province')}
-            withAsterisk
-            mb="sm"
-          />
+<Select
+  searchable
+  label="Province"
+  placeholder="Select province"
+  data={[
+    { value: 'AB', label: 'Alberta' },
+    { value: 'BC', label: 'British Columbia' },
+    { value: 'MB', label: 'Manitoba' },
+    { value: 'NB', label: 'New Brunswick' },
+    { value: 'NL', label: 'Newfoundland and Labrador' },
+    { value: 'NS', label: 'Nova Scotia' },
+    { value: 'NT', label: 'Northwest Territories' },
+    { value: 'NU', label: 'Nunavut' },
+    { value: 'ON', label: 'Ontario' },
+    { value: 'PE', label: 'Prince Edward Island' },
+    { value: 'QC', label: 'Quebec' },
+    { value: 'SK', label: 'Saskatchewan' },
+    { value: 'YT', label: 'Yukon' },
+  ]}
+  {...form.getInputProps('businessAddress.province')}
+  withAsterisk
+  mb="sm"
+/>
           <TextInput
             label="Postal Code"
             placeholder="Enter postal code"
@@ -256,15 +256,18 @@ export const TenantOnboarding = () => {
             required
             mb="sm"
           />
-          <Select
-            searchable
-            label="Country"
-            placeholder="Select country"
-            data={['Canada', 'United States']}
-            {...form.getInputProps('businessAddress.country')}
-            withAsterisk
-            mb="sm"
-          />
+<Select
+  searchable
+  label="Country"
+  placeholder="Select country"
+  data={[
+    { value: 'CA', label: 'Canada' },
+    { value: 'US', label: 'United States' },
+  ]}
+  {...form.getInputProps('businessAddress.country')}
+  withAsterisk
+  mb="sm"
+/>
           <TextInput
             label="Service Email"
             placeholder="Enter service email"

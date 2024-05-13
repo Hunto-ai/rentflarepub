@@ -1,15 +1,7 @@
 import { Overlay, Container, Title, Button, Text, Group } from '@mantine/core';
-import { useContext } from 'react';
 import classes from './HeroContentLeft.module.css';
-import { ScrollContext } from './ScrollContext';
 
 export function HeroContentLeft() {
-    const { getInTouchRef } = useContext(ScrollContext);
-    const scrollToGetInTouch = () => {
-        if (getInTouchRef.current) {
-            getInTouchRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
   return (
     <div className={classes.hero}>
       <Overlay
@@ -40,7 +32,11 @@ export function HeroContentLeft() {
                           className={classes.control}
                           variant="gradient"
                           gradient={{ from: 'blue', to: 'cyan' }}
-                          onClick={scrollToGetInTouch}
+                          // link to calc.tsx
+                          onClick={() => {
+                            window.location.href = '/calc';
+                          }
+                          }
                         >
                             Get started
                         </Button>
