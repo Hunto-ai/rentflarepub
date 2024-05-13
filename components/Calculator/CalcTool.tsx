@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextInput, rem, NumberInput, Image, Space, Divider, Slider, Button, Container, Title, Paper, Modal, FocusTrap, Grid, Text, Collapse } from '@mantine/core';
+import { TextInput, rem, NumberInput, Image, Space, Slider, Divider, Button, Container, Title, Paper, Modal, FocusTrap, Grid, Text, Collapse } from '@mantine/core';
 import { IconAt, IconPencil, IconBuilding, IconPhone } from '@tabler/icons-react';
 import { LineChart } from '@mantine/charts';
 import api from '@/axios/api';
@@ -18,7 +18,7 @@ function WealthGrowthCalculator() {
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [userInfoModalOpened, setUserInfoModalOpened] = useState(true);
+  const [userInfoModalOpened, setUserInfoModalOpened] = useState(false);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [portfolioValue, setPortfolioValue] = useState<number[]>([]);
   const [advancedOpened, setAdvancedOpened] = useState(false);
@@ -54,12 +54,16 @@ function WealthGrowthCalculator() {
     }).format(value);
   }
 
-  const handleUserInfoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setUserInfoModalOpened(false);
+  const handleSubmit = async () => {
+    try {
+      setUserInfoModalOpened(true);
+    } catch (error) {
+      alert('An error occurred while processing your request. Please try again.');
+    }
   };
 
-  const handleSubmit = async () => {
+  const handleFinalSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
       // Validate user input
       const errors = {
@@ -122,6 +126,7 @@ function WealthGrowthCalculator() {
 
       setChartData(combinedChartData);
       setPortfolioValue(response.data.portfolioValue); // Set the first year's value
+      setUserInfoModalOpened(false); // Close the modal after submission
     } catch (error) {
       alert('An error occurred while calculating the growth. Please try again.');
     }
@@ -138,24 +143,24 @@ function WealthGrowthCalculator() {
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Paper withBorder shadow="sm" p="lg" radius="md" mt="lg">
             <form onSubmit={(e) => e.preventDefault()}>
-            <Space h="xs" />
-            <NumberInput
-              label="Total HVAC Installations Per Year"
-              value={hvacUnits}
-              onChange={(value) => setHvacUnits(typeof value === 'number' ? value : parseInt(value, 10))}
-              placeholder="Enter HVAC installations"
-              required
-              hideControls
-            />
-            <Space h="xl" />
-            <NumberInput
-              label="Total Water Heater Installations Per Year"
-              value={waterHeaters}
-              onChange={(value) => setWaterHeaters(typeof value === 'number' ? value : parseInt(value, 10))}
-              placeholder="Enter Water Heater installations"
-              required
-              hideControls
-            />
+              <Space h="xs" />
+              <NumberInput
+                label="Total HVAC Installations Per Year"
+                value={hvacUnits}
+                onChange={(value) => setHvacUnits(typeof value === 'number' ? value : parseInt(value, 10))}
+                placeholder="Enter HVAC installations"
+                required
+                hideControls
+              />
+              <Space h="xl" />
+              <NumberInput
+                label="Total Water Heater Installations Per Year"
+                value={waterHeaters}
+                onChange={(value) => setWaterHeaters(typeof value === 'number' ? value : parseInt(value, 10))}
+                placeholder="Enter Water Heater installations"
+                required
+                hideControls
+              />
               <Space h="xl" />
               <Button
                 fullWidth
@@ -288,117 +293,117 @@ function WealthGrowthCalculator() {
                   ]}
                 />
               </Collapse>
-              <Button fullWidth mt="lg" onClick={handleSubmit}>
-                Calculate Growth
+              <Space h="sm" />
+              <Button fullWidth onClick={handleSubmit}>
+                Calculate
               </Button>
             </form>
           </Paper>
         </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 8 }}>
+        <Grid.Col span={{ base: 12, md: 8 }}>
           <Paper withBorder shadow="sm" p="lg" radius="md" mt="lg">
-  <Text size="lg" w={500}>
-    Results
-  </Text>
-  {portfolioValue.length > 0 && (
-    <>
-      <Text size="sm">Based on your current volume, you can expect to have a total
-        portfolio value by year 5 of {formatNumber(portfolioValue[4])} with a total
-        portfolio size of {chartData[4].totalUnits} rentals.
-        By year 15, you can expect to have a total
-        portfolio value of {formatNumber(portfolioValue[14])} with
-        a total
-        portfolio size of {chartData[14].totalUnits} rentals.
-
-        This relies on you converting {Math.round(salesTeamStrength * 100)}%
-        of your HVAC and Water Heater installations into rentals.
-        (Some branches can convert up to 50% of their installations into rentals.)
-      </Text>
-    </>
-  )}
-  <Space h="xl" />
-        <Text mb="md" pl="md">
-          Traditional Revenue, Rental Revenue:
-        </Text>
-        <LineChart
-          h={300}
-          data={chartData}
-          dataKey="year"
-          withLegend
-          valueFormatter={(value) => new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(value)}
-          series={[
-            { name: 'traditionalRevenue', color: 'teal.6', label: 'Traditional Revenue' },
-            { name: 'rentalRevenue', color: 'blue.6', label: 'Rental Revenue' },
-          ]}
-          lineChartProps={{ syncId: 'revenueCharts' }}
-          tooltipProps={{
-            labelFormatter: (value) => `Year ${value}`,
-          }}
-        />
-
-          <Text mb="md" pl="md" mt="xl">
-            Portfolio Value:
-          </Text>
-          <LineChart
-            h={300}
-            data={chartData}
-            dataKey="year"
-            valueFormatter={(value) => new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            }).format(value)}
-            series={[
-              { name: 'portfolioValue', color: 'red.6', label: 'Portfolio Value' },
-            ]}
-            lineChartProps={{ syncId: 'revenueCharts' }}
-            tooltipProps={{
-              labelFormatter: (value) => `Year ${value}`,
-            }}
-          />
+            <Text size="lg" w={500}>
+              Results
+            </Text>
+            {portfolioValue.length > 0 && (
+              <>
+                <Text size="sm">
+                  Based on your current volume, you can expect to have a total
+                  portfolio value by year 5 of {formatNumber(portfolioValue[4])} with a total
+                  portfolio size of {chartData[4].totalUnits} rentals.
+                  By year 15, you can expect to have a total
+                  portfolio value of {formatNumber(portfolioValue[14])} with
+                  a total
+                  portfolio size of {chartData[14].totalUnits} rentals.
+                  This relies on you converting {Math.round(salesTeamStrength * 100)}%
+                  of your HVAC and Water Heater installations into rentals.
+                  (Some branches can convert up to 50% of their installations into rentals.)
+                </Text>
+              </>
+            )}
+            <Space h="xl" />
+            <Text mb="md" pl="md">
+              Traditional Revenue, Rental Revenue:
+            </Text>
+            <LineChart
+              h={300}
+              data={chartData}
+              dataKey="year"
+              withLegend
+              valueFormatter={(value) => new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(value)}
+              series={[
+                { name: 'traditionalRevenue', color: 'teal.6', label: 'Traditional Revenue' },
+                { name: 'rentalRevenue', color: 'blue.6', label: 'Rental Revenue' },
+              ]}
+              lineChartProps={{ syncId: 'revenueCharts' }}
+              tooltipProps={{
+                labelFormatter: (value) => `Year ${value}`,
+              }}
+            />
+            <Text mb="md" pl="md" mt="xl">
+              Portfolio Value:
+            </Text>
+            <LineChart
+              h={300}
+              data={chartData}
+              dataKey="year"
+              valueFormatter={(value) => new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(value)}
+              series={[
+                { name: 'portfolioValue', color: 'red.6', label: 'Portfolio Value' },
+              ]}
+              lineChartProps={{ syncId: 'revenueCharts' }}
+              tooltipProps={{
+                labelFormatter: (value) => `Year ${value}`,
+              }}
+            />
           </Paper>
-          </Grid.Col>
+        </Grid.Col>
       </Grid>
 
-     {/* Modal for collecting user information */}
-     <Modal
-       opened={userInfoModalOpened}
-       onClose={() => setUserInfoModalOpened(false)}
-       centered
-       trapFocus
-       closeOnEscape={false}
-       withCloseButton={false}
-       size="lg"
-       closeOnClickOutside={false}
-     >
+      {/* Modal for collecting user information */}
+      <Modal
+        opened={userInfoModalOpened}
+        onClose={() => setUserInfoModalOpened(false)}
+        centered
+        trapFocus
+        closeOnEscape={false}
+        withCloseButton={false}
+        size="lg"
+        closeOnClickOutside={false}
+      >
         <FocusTrap active={userInfoModalOpened}>
-          <form onSubmit={handleUserInfoSubmit}>
-          <div style={{ textAlign: 'center' }}>
-        <Title order={1}>
-          Try our free rental revenue calculator and unlock the{' '}
-          <Text
-            component="span"
-            inherit
-            variant="gradient"
-            gradient={{ from: 'pink', to: 'yellow' }}
-          >
-            full potential
-          </Text>{' '}
-          of your business.
-        </Title>
-        <Space h="xl" />
-        <Image
-          radius="md"
-          src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
-        />
-        <Divider />
-          </div>
-          <Space h="xl" />
+          <form onSubmit={handleFinalSubmit}>
+            <div style={{ textAlign: 'center' }}>
+              <Title order={1}>
+                Try our free rental revenue calculator and unlock the{' '}
+                <Text
+                  component="span"
+                  inherit
+                  variant="gradient"
+                  gradient={{ from: 'pink', to: 'yellow' }}
+                >
+                  full potential
+                </Text>{' '}
+                of your business.
+              </Title>
+              <Space h="xl" />
+              <Image
+                radius="md"
+                src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
+              />
+              <Divider />
+            </div>
+            <Space h="xl" />
             <TextInput
               label="Full Name"
               leftSection={pencilIcon}
@@ -439,7 +444,7 @@ function WealthGrowthCalculator() {
             </Button>
           </form>
         </FocusTrap>
-     </Modal>
+      </Modal>
     </Container>
   );
 }
