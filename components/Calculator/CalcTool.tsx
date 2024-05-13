@@ -24,12 +24,18 @@ function WealthGrowthCalculator() {
   const [borrowingRate, setBorrowingRate] = useState(0.1);
   const [avgRecoveryRate, setAvgRecoveryRate] = useState(32);
 
-  // Validate user input
-  const validate = {
-    fullName: (value) => (value.length < 2 ? 'Name is too short' : null),
-    companyName: (value) => (value.length < 2 ? 'Company name is too short' : null),
-    phoneNumber: (value) => (value.length < 10 ? 'Phone number is too short' : null),
-    email: (value) => (value.length < 5 ? 'Email is too short' : null),
+  interface Validate {
+    fullName: (value: string) => string | null;
+    companyName: (value: string) => string | null;
+    phoneNumber: (value: string) => string | null;
+    email: (value: string) => string | null;
+  }
+
+  const validate: Validate = {
+    fullName: (value: string) => (value.length < 2 ? 'Name is too short' : null),
+    companyName: (value: string) => (value.length < 2 ? 'Company name is too short' : null),
+    phoneNumber: (value: string) => (value.length < 10 ? 'Phone number is too short' : null),
+    email: (value: string) => (value.length < 5 ? 'Email is too short' : null),
   };
 
   function formatNumber(value = 0) {
@@ -41,7 +47,7 @@ function WealthGrowthCalculator() {
     }).format(value);
   }
 
-  const handleUserInfoSubmit = async (e) => {
+  const handleUserInfoSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUserInfoModalOpened(false);
   };
@@ -86,7 +92,7 @@ function WealthGrowthCalculator() {
         email,
       });
   // Process response data
-      const combinedChartData = response.data.chartData.map((data) => {
+      const combinedChartData = response.data.chartData.map((data : any) => {
         if (data.hvacRentalRevenue && data.waterHeaterRentalRevenue) {
           return {
             ...data,
@@ -291,7 +297,7 @@ function WealthGrowthCalculator() {
         a total
         portfolio size of {chartData[14].totalUnits} rentals.
 
-        This relies on you converting {Math.round(salesTeamStrength * 100)}% 
+        This relies on you converting {Math.round(salesTeamStrength * 100)}%
         of your HVAC and Water Heater installations into rentals.
         (Some branches can convert up to 50% of their installations into rentals.)
       </Text>
