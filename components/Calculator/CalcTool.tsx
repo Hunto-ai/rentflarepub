@@ -378,24 +378,26 @@ function WealthGrowthCalculator() {
      >
         <FocusTrap active={userInfoModalOpened}>
           <form onSubmit={handleUserInfoSubmit}>
-          <Title order={1} align="center">
-              Try our free rental revenue calculator and unlock the{' '}
-              <Text
-                component="span"
-                inherit
-                variant="gradient"
-                gradient={{ from: 'pink', to: 'yellow' }}
-              >
-                full potential
-              </Text>{' '}
-              of your business.
-          </Title>
-            <Space h="xl" />
-          <Image
-            radius="md"
-            src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
-          />
-          <Divider />
+          <div style={{ textAlign: 'center' }}>
+        <Title order={1}>
+          Try our free rental revenue calculator and unlock the{' '}
+          <Text
+            component="span"
+            inherit
+            variant="gradient"
+            gradient={{ from: 'pink', to: 'yellow' }}
+          >
+            full potential
+          </Text>{' '}
+          of your business.
+        </Title>
+        <Space h="xl" />
+        <Image
+          radius="md"
+          src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
+        />
+        <Divider />
+          </div>
           <Space h="xl" />
             <TextInput
               label="Full Name"
