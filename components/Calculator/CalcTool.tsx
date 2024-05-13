@@ -4,6 +4,13 @@ import { IconAt, IconPencil, IconBuilding, IconPhone } from '@tabler/icons-react
 import { LineChart } from '@mantine/charts';
 import api from '@/axios/api';
 
+interface ChartData {
+  hvacRentalRevenue?: number;
+  waterHeaterRentalRevenue?: number;
+  rentalRevenue?: number;
+  totalUnits?: number;
+}
+
 function WealthGrowthCalculator() {
   const [hvacUnits, setHvacUnits] = useState(300);
   const [waterHeaters, setWaterHeaters] = useState(300);
@@ -12,8 +19,8 @@ function WealthGrowthCalculator() {
   const [companyName, setCompanyName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userInfoModalOpened, setUserInfoModalOpened] = useState(true);
-  const [chartData, setChartData] = useState([]);
-  const [portfolioValue, setPortfolioValue] = useState([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [portfolioValue, setPortfolioValue] = useState<number[]>([]);
   const [advancedOpened, setAdvancedOpened] = useState(false);
   const [marketPopulation, setMarketPopulation] = useState(300000);
   const [avgHvacTicket, setAvgHvacTicket] = useState(5000);
@@ -47,7 +54,7 @@ function WealthGrowthCalculator() {
     }).format(value);
   }
 
-  const handleUserInfoSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
+  const handleUserInfoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUserInfoModalOpened(false);
   };
@@ -63,14 +70,15 @@ function WealthGrowthCalculator() {
       };
 
       // Check for any validation errors
-      const hasErrors = Object.values(errors).some(error => error !== null);
+      const hasErrors = Object.values(errors).some((error) => error !== null);
       if (hasErrors) {
         // Handle errors, e.g., display them to the user
         alert('Validation errors occurred. Please check your input and try again.');
         console.error(errors);
         return; // Prevent the form submission if there are errors
       }
-   // Calculate adjusted values based on the sales team strength
+
+      // Calculate adjusted values based on the sales team strength
       const adjustedHvacUnits = Math.round(hvacUnits * salesTeamStrength);
       const adjustedWaterHeaters = Math.round(waterHeaters * salesTeamStrength);
 
@@ -91,19 +99,23 @@ function WealthGrowthCalculator() {
         phoneNumber,
         email,
       });
-  // Process response data
-      const combinedChartData = response.data.chartData.map((data : any) => {
+
+      // Process response data
+      const combinedChartData: ChartData[] = response.data.chartData.map((data: any) => {
         if (data.hvacRentalRevenue && data.waterHeaterRentalRevenue) {
           return {
             ...data,
             rentalRevenue: data.hvacRentalRevenue + data.waterHeaterRentalRevenue,
+            totalUnits: data.totalUnits,
           };
         }
         if (data.hvacRentalRevenue) {
-          return { ...data, rentalRevenue: data.hvacRentalRevenue };
+          return { ...data, rentalRevenue: data.hvacRentalRevenue, totalUnits: data.totalUnits };
         }
         if (data.waterHeaterRentalRevenue) {
-          return { ...data, rentalRevenue: data.waterHeaterRentalRevenue };
+          return {
+            ...data, rentalRevenue: data.waterHeaterRentalRevenue, totalUnits: data.totalUnits,
+          };
         }
         return data;
       });
