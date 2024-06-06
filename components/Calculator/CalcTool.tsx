@@ -1,26 +1,45 @@
 import { useState } from 'react';
-import { TextInput, rem, NumberInput, Image, Space, Slider, Divider, Button, Container, Title, Paper, Modal, FocusTrap, Grid, Text, Collapse } from '@mantine/core';
+import { TextInput, rem, NumberInput, Image, Space, Divider, Button, Container, SegmentedControl, Slider, Title, Paper, Modal, FocusTrap, Grid, Text, Collapse } from '@mantine/core';
 import { IconAt, IconPencil, IconBuilding, IconPhone } from '@tabler/icons-react';
 import { LineChart } from '@mantine/charts';
 import api from '@/axios/api';
 
 interface ChartData {
-  hvacRentalRevenue?: number;
-  waterHeaterRentalRevenue?: number;
-  rentalRevenue?: number;
-  totalUnits?: number;
+  year: string;
+  traditionalRevenue: number;
+  totalRentalRevenue: number;
+  portfolioValue: number;
+  hvacUnits: number;
+  waterHeaterUnits: number;
+  totalUnits: number;
+  totalPortfolioSize: number;
+  traditionalCosts: number;
+  traditionalGrossMargin: number;
+  traditionalGrossMarginPercentage: number;
+  rentalCosts: number;
+  rentalGrossMargin: number;
+  rentalGrossMarginPercentage: number;
 }
 
+type SingleUnitComparison = {
+  hvacRevenueIncrease: number;
+  waterHeaterRevenueIncrease: number;
+};
+
 function WealthGrowthCalculator() {
-  const [hvacUnits, setHvacUnits] = useState(300);
-  const [waterHeaters, setWaterHeaters] = useState(300);
+  const [hvacUnits, setHvacUnits] = useState(50);
+  const [waterHeaters, setWaterHeaters] = useState(50);
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userInfoModalOpened, setUserInfoModalOpened] = useState(false);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [portfolioValue, setPortfolioValue] = useState<number[]>([]);
+  const [introModalOpened, setIntroModalOpened] = useState(true);
+  const [isUserInfoCollected, setIsUserInfoCollected] = useState(false);
+  const [chartData, setChartData] = useState([]);
+  const [portfolioValue, setPortfolioValue] = useState([]);
+  const [singleUnitComparison, setSingleUnitComparison] =
+  useState<SingleUnitComparison | null>(null); // Added state for single unit comparison
   const [advancedOpened, setAdvancedOpened] = useState(false);
   const [marketPopulation, setMarketPopulation] = useState(300000);
   const [avgHvacTicket, setAvgHvacTicket] = useState(5000);
@@ -29,7 +48,11 @@ function WealthGrowthCalculator() {
   const [avgWaterHeaterGrossMargin, setAvgWaterHeaterGrossMargin] = useState(40);
   const [salesTeamStrength, setSalesTeamStrength] = useState(0.2);
   const [borrowingRate, setBorrowingRate] = useState(0.1);
-  const [avgRecoveryRate, setAvgRecoveryRate] = useState(32);
+  const [avgRecoveryRate, setAvgRecoveryRate] = useState(26);
+  const [adjustedHvacUnits, setAdjustedHvacUnits] = useState(0); // New state variable
+  const [adjustedWaterHeaters, setAdjustedWaterHeaters] = useState(0); // New state variable
+  // const [emailSent, setEmailSent] = useState(false);
+  const [view, setView] = useState<SeriesMapKey>('traditional'); // Explicitly typed view
 
   interface Validate {
     fullName: (value: string) => string | null;
@@ -37,15 +60,30 @@ function WealthGrowthCalculator() {
     phoneNumber: (value: string) => string | null;
     email: (value: string) => string | null;
   }
-
   const validate: Validate = {
-    fullName: (value: string) => (value.length < 2 ? 'Name is too short' : null),
-    companyName: (value: string) => (value.length < 2 ? 'Company name is too short' : null),
-    phoneNumber: (value: string) => (value.length < 10 ? 'Phone number is too short' : null),
-    email: (value: string) => (value.length < 5 ? 'Email is too short' : null),
+    fullName: (value: string) => {
+      if (value.length < 2) return 'Name is too short';
+      return null;
+    },
+    companyName: (value: string) => {
+      if (value.length < 2) return 'Company name is too short';
+      return null;
+    },
+    phoneNumber: (value: string) => {
+      const phoneRegex = /^\+?[1-9]\d{1,14}$/; // This regex allows for international formats
+      if (value.length < 10) return 'Phone number is too short';
+      if (!phoneRegex.test(value.replace(/\D/g, ''))) return 'Invalid phone number';
+      return null;
+    },
+    email: (value: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value.length < 5) return 'Email is too short';
+      if (!emailRegex.test(value)) return 'Invalid email address';
+      return null;
+    },
   };
 
-  function formatNumber(value = 0) {
+  function formatCurrency(value = 0) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -54,16 +92,11 @@ function WealthGrowthCalculator() {
     }).format(value);
   }
 
-  const handleSubmit = async () => {
-    try {
-      setUserInfoModalOpened(true);
-    } catch (error) {
-      alert('An error occurred while processing your request. Please try again.');
-    }
-  };
+  function formatPercentage(value = 0) {
+    return `${(value * 100).toFixed(2)}%`;
+  }
 
-  const handleFinalSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFinalSubmit = async () => {
     try {
       // Validate user input
       const errors = {
@@ -83,8 +116,14 @@ function WealthGrowthCalculator() {
       }
 
       // Calculate adjusted values based on the sales team strength
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const adjustedHvacUnits = Math.round(hvacUnits * salesTeamStrength);
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const adjustedWaterHeaters = Math.round(waterHeaters * salesTeamStrength);
+
+            // Set the adjusted values in state
+            setAdjustedHvacUnits(adjustedHvacUnits);
+            setAdjustedWaterHeaters(adjustedWaterHeaters);
 
       // Post data to the API
       const response = await api.post('/api/calculator', {
@@ -105,30 +144,79 @@ function WealthGrowthCalculator() {
       });
 
       // Process response data
-      const combinedChartData: ChartData[] = response.data.chartData.map((data: any) => {
-        if (data.hvacRentalRevenue && data.waterHeaterRentalRevenue) {
-          return {
-            ...data,
-            rentalRevenue: data.hvacRentalRevenue + data.waterHeaterRentalRevenue,
-            totalUnits: data.totalUnits,
-          };
-        }
-        if (data.hvacRentalRevenue) {
-          return { ...data, rentalRevenue: data.hvacRentalRevenue, totalUnits: data.totalUnits };
-        }
-        if (data.waterHeaterRentalRevenue) {
-          return {
-            ...data, rentalRevenue: data.waterHeaterRentalRevenue, totalUnits: data.totalUnits,
-          };
-        }
-        return data;
-      });
+      const combinedChartData = response.data.chartData.map((data : ChartData) => ({
+        ...data,
+        rentalRevenue: data.totalRentalRevenue, // No need to combine separately
+        totalUnits: data.totalUnits,
+        totalPortfolioSize: data.totalPortfolioSize,
+        traditionalRevenue: data.traditionalRevenue,
+        traditionalCosts: data.traditionalCosts,
+        traditionalGrossMargin: data.traditionalGrossMargin,
+        traditionalGrossMarginPercentage: data.traditionalGrossMarginPercentage,
+        rentalCosts: data.rentalCosts,
+        rentalGrossMargin: data.rentalGrossMargin,
+        rentalGrossMarginPercentage: data.rentalGrossMarginPercentage,
+        hvacUnits: data.hvacUnits,
+        waterHeaterUnits: data.waterHeaterUnits,
+      }));
 
       setChartData(combinedChartData);
       setPortfolioValue(response.data.portfolioValue); // Set the first year's value
+      setSingleUnitComparison(response.data.singleUnitComparison);
       setUserInfoModalOpened(false); // Close the modal after submission
+      setIsUserInfoCollected(true); // Set user info as collected
+      // setEmailSent(false); // Reset email sent status
     } catch (error) {
       alert('An error occurred while calculating the growth. Please try again.');
+    }
+  };
+
+  // type ChartDataItem = {
+  //   totalPortfolioSize: number;
+  //   totalRentalRevenue: number;
+  //   // Add other properties if needed
+  // };
+
+  // const handleEmailResults = async () => {
+  // const typedChartData = chartData as ChartDataItem[];
+  //   try {
+  //     const response = await api.post('/api/calculator/email', {
+  //       email,
+  //       fullName,
+  //       companyName,
+  //       phoneNumber,
+  //       salesTeamStrength,
+  //       chartData,
+  //       portfolioSize: typedChartData[typedChartData.length - 1].totalPortfolioSize,
+  //       recurringRevenue: typedChartData[typedChartData.length - 1].totalRentalRevenue,
+  //       portfolioValue, // Ensure this is an array
+  //       hvacUnits: Math.round(hvacUnits * salesTeamStrength),
+  //       waterHeaters: Math.round(waterHeaters * salesTeamStrength),
+  //       singleUnitComparison,
+  //     });
+
+  //     if (response.data.success) {
+  //       setEmailSent(true);
+  //     }
+  //   } catch (error) {
+  //     alert('An error occurred while sending the email. Please try again.');
+  //   }
+  // };
+
+  const handleViewChange = (value: string) => {
+    setView(value as SeriesMapKey);
+  };
+
+  const handleUserInfoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await handleFinalSubmit();
+  };
+
+  const handleSubmit = () => {
+    if (!isUserInfoCollected) {
+      setUserInfoModalOpened(true);
+    } else {
+      handleFinalSubmit();
     }
   };
 
@@ -136,6 +224,35 @@ function WealthGrowthCalculator() {
   const pencilIcon = <IconPencil style={{ width: rem(16), height: rem(16) }} />;
   const buildingIcon = <IconBuilding style={{ width: rem(16), height: rem(16) }} />;
   const phoneIcon = <IconPhone style={{ width: rem(16), height: rem(16) }} />;
+
+  type SeriesMapKey = 'traditional' | 'rental' | 'sale' | 'singleUnitRental';
+
+  const seriesMap = {
+    traditional: [
+      { name: 'traditionalRevenue', color: 'green.6', label: 'Traditional Revenue' },
+      { name: 'traditionalCosts', color: 'red.6', label: 'Traditional Costs' },
+      { name: 'traditionalGrossMargin', color: 'blue.6', label: 'Traditional Gross Margin' },
+      { name: 'traditionalGrossMarginPercentage', color: 'purple.6', label: 'Traditional Gross Margin Percentage' },
+    ],
+    rental: [
+      { name: 'totalRentalRevenue', color: 'green.6', label: 'Rental Revenue' },
+      { name: 'rentalCosts', color: 'red.6', label: 'Rental Costs' },
+      { name: 'rentalGrossMargin', color: 'blue.6', label: 'Rental Gross Margin' },
+      { name: 'rentalGrossMarginPercentage', color: 'purple.6', label: 'Rental Gross Margin Percentage' },
+    ],
+    sale: [
+      { name: 'saleRevenue', color: 'green.6', label: 'Sale Revenue' },
+      { name: 'saleCosts', color: 'red.6', label: 'Sale Costs' },
+      { name: 'saleGrossMargin', color: 'blue.6', label: 'Sale Gross Margin' },
+      { name: 'saleGrossMarginPercentage', color: 'purple.6', label: 'Sale Gross Margin Percentage' },
+    ],
+    singleUnitRental: [
+      { name: 'singleUnitRentalRevenue', color: 'green.6', label: 'Single Unit Rental Revenue' },
+      { name: 'singleUnitRentalCosts', color: 'red.6', label: 'Single Unit Rental Costs' },
+      { name: 'singleUnitRentalGrossMargin', color: 'blue.6', label: 'Single Unit Rental Gross Margin' },
+      { name: 'singleUnitRentalGrossMarginPercentage', color: 'purple.6', label: 'Single Unit Rental Gross Margin Percentage' },
+    ],
+  };
 
   return (
     <Container size="lg" p="md">
@@ -263,8 +380,9 @@ function WealthGrowthCalculator() {
                   required
                 />
                 <Space h="xl" />
+                <Text size="sm">Borrowing Rate</Text>
                 <Slider
-                  label="Borrowing Rate"
+                  label={(value) => `${(value * 100).toFixed(0)}%`}
                   placeholder="Enter borrowing rate"
                   min={0}
                   max={0.25}
@@ -280,7 +398,7 @@ function WealthGrowthCalculator() {
                 <Space h="xl" />
                 <Text size="sm">Average Recovery Rate</Text>
                 <Slider
-                  label="Average Recovery Rate"
+                  label={(value) => `${value} months`}
                   min={18}
                   max={45}
                   step={1}
@@ -292,6 +410,7 @@ function WealthGrowthCalculator() {
                     { value: 45, label: '45' },
                   ]}
                 />
+                <Space h="xl" />
               </Collapse>
               <Space h="sm" />
               <Button fullWidth onClick={handleSubmit}>
@@ -301,74 +420,153 @@ function WealthGrowthCalculator() {
           </Paper>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Paper withBorder shadow="sm" p="lg" radius="md" mt="lg">
-            <Text size="lg" w={500}>
-              Results
-            </Text>
-            {portfolioValue.length > 0 && (
-              <>
-                <Text size="sm">
-                  Based on your current volume, you can expect to have a total
-                  portfolio value by year 5 of {formatNumber(portfolioValue[4])} with a total
-                  portfolio size of {chartData[4].totalUnits} rentals.
-                  By year 15, you can expect to have a total
-                  portfolio value of {formatNumber(portfolioValue[14])} with
-                  a total
-                  portfolio size of {chartData[14].totalUnits} rentals.
-                  This relies on you converting {Math.round(salesTeamStrength * 100)}%
-                  of your HVAC and Water Heater installations into rentals.
-                  (Some branches can convert up to 50% of their installations into rentals.)
-                </Text>
-              </>
-            )}
-            <Space h="xl" />
-            <Text mb="md" pl="md">
-              Traditional Revenue, Rental Revenue:
-            </Text>
-            <LineChart
-              h={300}
-              data={chartData}
-              dataKey="year"
-              withLegend
-              valueFormatter={(value) => new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }).format(value)}
-              series={[
-                { name: 'traditionalRevenue', color: 'teal.6', label: 'Traditional Revenue' },
-                { name: 'rentalRevenue', color: 'blue.6', label: 'Rental Revenue' },
-              ]}
-              lineChartProps={{ syncId: 'revenueCharts' }}
-              tooltipProps={{
-                labelFormatter: (value) => `Year ${value}`,
-              }}
-            />
-            <Text mb="md" pl="md" mt="xl">
-              Portfolio Value:
-            </Text>
-            <LineChart
-              h={300}
-              data={chartData}
-              dataKey="year"
-              valueFormatter={(value) => new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }).format(value)}
-              series={[
-                { name: 'portfolioValue', color: 'red.6', label: 'Portfolio Value' },
-              ]}
-              lineChartProps={{ syncId: 'revenueCharts' }}
-              tooltipProps={{
-                labelFormatter: (value) => `Year ${value}`,
-              }}
-            />
-          </Paper>
+  <Paper withBorder shadow="sm" p="lg" radius="md" mt="lg">
+    <Title order={2}>
+      Results for {companyName}
+    </Title>
+    <Space h="xs" />
+    {portfolioValue.length > 0 && (
+      <>
+        <Text size="md">
+          {fullName}, based on the data you provided, we are going to
+          assume you can convert {adjustedHvacUnits} HVAC installations
+          and {adjustedWaterHeaters} Water Heater installations in year 1.
+          We&apos;ll use these numbers as an apples-to-apples comparison
+          against your traditional revenue.
+          On average,
+          you&apos;ll generate &nbsp;
+          {singleUnitComparison && formatCurrency(singleUnitComparison.hvacRevenueIncrease)} more
+          revenue per HVAC unit and &nbsp;
+          {singleUnitComparison && formatCurrency(singleUnitComparison.waterHeaterRevenueIncrease)}
+          &nbsp; more
+          revenue per Water Heater.
+
+          <Space h="sm" />
+          This calculator does account for nominal growth.  You can fine tune adjustments
+          under Advanced Options.
+
+          <Space h="sm" />
+          The portfolio value is an estimated market value of your rental
+          portfolio in the given year. It is calculated
+          based on expected future revenue only and not your current balance sheet.
+          The market value is highly volatile
+          so this number should be used as a rough estimate only.
+          In this case, if you were to retire in 15 years,
+          you could expect to sell your rental portfolio for {formatCurrency(portfolioValue[14])}.
+        </Text>
+        <Space h="md" />
+        {/* {!emailSent && (
+          <Button onClick={handleEmailResults}>
+            Email Results
+          </Button>
+        )}
+        {emailSent && (
+          <Text color="green">Email sent successfully!</Text>
+        )} */}
+      </>
+    )}
+  </Paper>
+  <Paper withBorder shadow="sm" p="xl" radius="md" mt="lg">
+  <SegmentedControl
+    value={view}
+    onChange={handleViewChange}
+    data={[
+          { label: 'With Rentals', value: 'rental' },
+          { label: 'Without Rentals', value: 'traditional' },
+        ]}
+    mb="md"
+  />
+    <LineChart
+      h={300}
+      data={chartData}
+      dataKey="year"
+      series={seriesMap[view]}
+      lineChartProps={{ syncId: 'revenueCharts' }}
+      valueFormatter={(value) => {
+        if (typeof value === 'number' && value >= 0 && value <= 80) {
+          return formatPercentage(value);
+        }
+        return formatCurrency(value);
+      }}
+    />
+    <Space h="xl" />
+    <Text mb="md" pl="md" mt="xl">
+      Portfolio Value:
+    </Text>
+    <LineChart
+      h={300}
+      data={chartData}
+      dataKey="year"
+      valueFormatter={(value) => new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value)}
+      series={[
+        { name: 'portfolioValue', color: 'red.6', label: 'Portfolio Value' },
+      ]}
+      lineChartProps={{ syncId: 'revenueCharts' }}
+      tooltipProps={{
+        labelFormatter: (value) => `Year ${value}`,
+      }}
+    />
+  </Paper>
         </Grid.Col>
       </Grid>
+
+      {/* Modal for introducing the calculator */}
+      <Modal
+        opened={introModalOpened}
+        onClose={() => setIntroModalOpened(false)}
+        centered
+        trapFocus
+        closeOnEscape={false}
+        withCloseButton={false}
+        size="lg"
+        closeOnClickOutside={false}
+      >
+        <FocusTrap active={introModalOpened}>
+          <div style={{ textAlign: 'center' }}>
+            <Title order={1}>
+              Try our free rental revenue calculator and unlock the{' '}
+              <Text
+                component="span"
+                inherit
+                variant="gradient"
+                gradient={{ from: 'pink', to: 'yellow' }}
+              >
+                full potential
+              </Text>{' '}
+              of your business.
+            </Title>
+            <Space h="xl" />
+            <Text mb="md">
+              Are you ready to take your business to the next level?
+              Our cutting-edge Rental Revenue Calculator is designed to help you
+              visualize the untapped revenue growth waiting for you.
+              By converting your HVAC and Water Heater installations into rentals,
+              you can create a sustainable, profitable business model.
+            </Text>
+            <Image
+              radius="md"
+              src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
+            />
+            <Divider my="sm" />
+            <Text mb="md">
+              Get started today and see how much additional revenue you could be
+              earning.
+            </Text>
+            <Space h="xl" />
+            <Button
+              fullWidth
+              onClick={() => { setIntroModalOpened(false); }}
+            >
+              Get Started
+            </Button>
+          </div>
+        </FocusTrap>
+      </Modal>
 
       {/* Modal for collecting user information */}
       <Modal
@@ -381,28 +579,21 @@ function WealthGrowthCalculator() {
         size="lg"
         closeOnClickOutside={false}
       >
-        <FocusTrap active={userInfoModalOpened}>
-          <form onSubmit={handleFinalSubmit}>
-            <div style={{ textAlign: 'center' }}>
-              <Title order={1}>
-                Try our free rental revenue calculator and unlock the{' '}
-                <Text
-                  component="span"
-                  inherit
-                  variant="gradient"
-                  gradient={{ from: 'pink', to: 'yellow' }}
-                >
-                  full potential
-                </Text>{' '}
-                of your business.
-              </Title>
-              <Space h="xl" />
-              <Image
-                radius="md"
-                src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
-              />
-              <Divider />
-            </div>
+  <FocusTrap active={userInfoModalOpened}>
+    <form onSubmit={handleUserInfoSubmit}>
+      <div style={{ textAlign: 'center' }}>
+        <Image
+          radius="md"
+          src="https://rfpublicbucket.s3.us-east-2.amazonaws.com/img/linechart.png"
+        />
+        <Divider />
+        <Text mt="md">
+          Enter your details below to receive a comprehensive report on how much
+          additional revenue you could be earning by converting your HVAC and
+          Water Heater installations into rentals. This personalized report is
+          your key to a sustainable, profitable business model.
+        </Text>
+      </div>
             <Space h="xl" />
             <TextInput
               label="Full Name"
@@ -442,8 +633,8 @@ function WealthGrowthCalculator() {
             <Button fullWidth mt="lg" type="submit">
               Submit
             </Button>
-          </form>
-        </FocusTrap>
+    </form>
+  </FocusTrap>
       </Modal>
     </Container>
   );

@@ -3,19 +3,19 @@ import classes from './StatsGroup.module.css';
 
 const data = [
   {
-    title: 'Portoflio Wealth Generated',
+    title: 'Portfolio Wealth Generated',
     stats: '$10,000,000+',
-    description: 'We have experience generating millions of portfolio wealth for our clients, providing successful exits or continued stable long term revenue.',
+    description: 'With a proven track record, we\'ve helped clients generate over $10 million in portfolio wealth, enabling successful exits or ensuring continued, stable long-term revenue.',
   },
   {
     title: 'Contracts Executed',
     stats: '2,500+',
-    description: 'We have a proven system for deploying rentals into any sized Plumbing & HVAC Business.',
+    description: 'Our robust system seamlessly integrates rentals into any size Plumbing & HVAC business.',
   },
   {
     title: 'Monthly Service Fee',
     stats: '$0',
-    description: 'Rentflare is a long term partner in your success.  You only pay based on your real rented volume.',
+    description: 'Rentflare is committed to your success. You only pay based on the actual volume of your rentals.',
   },
 ];
 
